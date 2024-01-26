@@ -13,7 +13,7 @@ https://github.com/Jgfrausing
 <td><img src="me.jpg" alt="me" width="200"/></td>
 </tr>
 </table>
-A joyful extrovert and father, balancing life with pets, a passion for reading, and a knack for guitar and piano. I embrace challenges with a detail-oriented approach, and am known for being a hoot!
+A joyful extrovert and father, balancing life with pets, a passion for reading, and a knack for guitar and piano. I am an excelent problem solver embrace challenges with a detail-oriented approach, and am known for being a hoot!
 
 ## Posts
 
