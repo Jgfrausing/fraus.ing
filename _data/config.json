@@ -1,0 +1,8 @@
+{
+  "themeColor": "#1500aa",
+  "menu": [
+    { "name": "Home", "link": "/" },
+    { "name": "About", "link": "/about/" },
+    { "name": "Contdact", "link": "https://www.dgoogle.com/" }
+  ]
+}
