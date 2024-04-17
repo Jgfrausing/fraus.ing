@@ -20,7 +20,7 @@ Enough introduction, to the fun part. 🚀🚀
 
 The upfront cost is creating the framework for the tests to run in - In these style of these this is refered to as `World`. We created a statemachine that represent the following diagram:
 
-![statediagram](given-when-then.png)
+![statediagram](given-when-then.svg)
 
 During `Given` you can add setups to define the initial state of the system. In `When` you define the events that should modify the system. In `Then` you specify the expected conditions of the system.
 
