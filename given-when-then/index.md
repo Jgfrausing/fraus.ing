@@ -132,7 +132,10 @@ Now, we must set up our assertions. Everything we can monitor from outside the s
 ```python
 class Then(World):
     def is_full(self, person):
-        self.add_event(lambda: self.sut.is_full(person))
+        async def check_full(person=person):
+            val = await self.sut.is_full(person)
+            assert val
+        self.add_event(check_full)
         return self
 
     async def run():
