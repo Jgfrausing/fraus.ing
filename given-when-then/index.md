@@ -205,6 +205,7 @@ def run(given, when, then):
         given = given(Given())
         when = when(await given.when())
         then = then(await when.then())
+        await then.run()
 
     import asyncio
     asyncio.run(inner(given, when, then))
