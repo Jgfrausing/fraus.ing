@@ -1,7 +1,7 @@
 .terminal {
-  padding: 2em;
-  padding-top: 3em;
-  border-radius: 2em;
+  margin-top: 1em;
+  padding: 1em;
+  border-radius: 1em;
   overflow: auto; /* Ensure the scrollbar appears if content overflows */
 }
 
@@ -41,4 +41,8 @@
   margin: 0;
   height: 100vh;
   width: 100vw;
+}
+
+body {
+  margin: 0;
 }
