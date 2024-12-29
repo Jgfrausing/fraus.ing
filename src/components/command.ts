@@ -57,7 +57,8 @@ export class Content {
     }
 
     // remove trailing slash
-    return (root + "/" + path).substring(0, path.length - 1);
+    const pwd = root + "/" + path;
+    return pwd.substring(0, pwd.length - 1);
   }
 
   navigate(path: string): Inner {

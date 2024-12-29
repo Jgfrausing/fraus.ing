@@ -90,7 +90,6 @@ export class TerminalWrapper {
       command
     );
     this.location = context.location;
-    console.log(context.location.toPath());
 
     this.writePrefix();
   }
