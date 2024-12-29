@@ -170,7 +170,6 @@ const commands: Commands = {
     usage: "tree",
     args: "",
     fn: (context: Context, terminal: XTerm) => {
-      // assume empty context.location is src/data/files
       terminal.writeln(context.location);
 
       let location = navigateTo(context.location);
@@ -235,8 +234,8 @@ const execute = (context: Context, terminal: XTerm, input: string) => {
       return context;
     }
   } catch (e: any) {
-    const redMessage = `\x1b[31m${e.message}\x1b[0m`;
-    terminal.writeln(redMessage);
+    const error = `\x1b[31m${e.message}\x1b[0m`;
+    terminal.writeln(error);
     return context;
   }
 };
