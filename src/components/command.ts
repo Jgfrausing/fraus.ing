@@ -61,7 +61,6 @@ export class Content {
   }
 
   navigate(path: string): Inner {
-    console.log(path);
     if (path === "~") {
       return this.root;
     } else if (path === ".") {
@@ -88,7 +87,6 @@ export class Content {
     let parts = arg.split("/");
     let file = parts[parts.length - 1];
     parts = parts.slice(0, parts.length - 1);
-    console.log(parts);
     let inner = this.inner;
     if (parts.length !== 0) {
       inner = this.navigate(parts.join("/"));
@@ -263,7 +261,6 @@ export const autoComplete = (context: Context, input: string) => {
   const [command, ...args] = input.trim().split(" ");
 
   const parts = args?.[0].trim()?.split("/");
-  console.log(args, parts);
   if (parts === undefined) {
     return [];
   }
