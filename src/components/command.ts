@@ -20,10 +20,14 @@ type Commands = {
 type Inner = { [key: string]: string | Inner | undefined };
 export class Content {
   inner: Inner;
+  root: Inner;
 
   constructor(content: Inner) {
+    let clone = JSON.parse(JSON.stringify(content));
+    this.root = this.addParent(clone);
     this.inner = this.addParent(content);
   }
+
   setInner(newlocation: Inner) {
     this.inner = newlocation;
   }
@@ -57,7 +61,9 @@ export class Content {
   }
 
   navigate(path: string): Inner {
-    if (path === ".") {
+    if (path === "~") {
+      return this.root;
+    } else if (path === ".") {
       return this.inner;
     } else if (path === "..") {
       if (
