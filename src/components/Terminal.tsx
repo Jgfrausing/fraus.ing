@@ -15,6 +15,9 @@ const Terminal: React.FC = () => {
       terminal.current = new XTerm({
         fontFamily: "monospace",
         cursorBlink: true,
+        cols: 80,
+        rows: 25,
+
         theme: {
           background: "#1e1e1e",
           foreground: "#ffffff",

@@ -1,6 +1,7 @@
 import React from "react";
 import { Terminal as XTerm } from "xterm";
 import execute from "./command";
+import { me as img, about } from "./about";
 
 const ignoreKeys = ["ArrowUp", "ArrowDown", "Tab"];
 export const root = "/home/jonatan";
@@ -23,6 +24,16 @@ export class TerminalWrapper {
   }
 
   start() {
+    let imgLines = img.split("\n");
+    let aboutLines = about.split("\n").map((line) => line.padEnd(38, " "));
+    const diff = imgLines.length - aboutLines.length;
+    imgLines = imgLines.slice(diff);
+
+    this.terminal.current?.writeln("");
+    for (let i = 0; i < imgLines.length; i++) {
+      let line = aboutLines[i] + imgLines[i];
+      this.terminal.current?.writeln(line);
+    }
     this.terminal.current?.writeln("Welcome to My Portfolio Terminal!");
     this.terminal.current?.writeln('Type "help" to see available commands.');
     this.writePrefix();
