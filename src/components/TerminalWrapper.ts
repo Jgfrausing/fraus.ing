@@ -1,10 +1,9 @@
 import React from "react";
 import { Terminal as XTerm } from "xterm";
-import execute from "./command";
+import execute, { root } from "./command";
 import { me as img, about } from "./about";
 
 const ignoreKeys = ["ArrowUp", "ArrowDown", "Tab"];
-export const root = "/home/jonatan";
 export class TerminalWrapper {
   terminal: React.RefObject<XTerm | undefined>;
   location: string = root;
@@ -84,11 +83,12 @@ export class TerminalWrapper {
   enter() {
     this.terminal.current?.writeln("");
     let command = this.input.slice(this.prefix().length);
-    execute(
-      { location: this.location.substring(root.length) },
+    let context = execute(
+      { location: this.location },
       this.terminal.current!,
       command
     );
+    this.location = context.location;
 
     this.writePrefix();
   }
