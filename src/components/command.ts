@@ -19,14 +19,10 @@ type Commands = {
 
 type Inner = { [key: string]: string | Inner | undefined };
 export class Content {
-  private root: Inner;
-  private inner: Inner;
+  inner: Inner;
 
   constructor(content: Inner) {
-    let contentClone = JSON.parse(JSON.stringify(content));
-    this.root = this.addParent(contentClone);
     this.inner = this.addParent(content);
-    console.log(this.root);
   }
   setInner(newlocation: Inner) {
     this.inner = newlocation;
@@ -49,7 +45,6 @@ export class Content {
   toPath(): string {
     let path = "";
 
-    console.log(this.inner);
     let inner: Inner | undefined | string = this.inner;
     while (typeof inner !== "string" && inner?.[".."] != undefined) {
       path = inner["."] + "/" + path;
@@ -138,6 +133,15 @@ const commands: Commands = {
       return context;
     },
   },
+  pwd: {
+    description: "Print the current working directory",
+    usage: "pwd",
+    args: "",
+    fn: (context: Context, terminal: XTerm) => {
+      terminal.writeln(context.location.toPath());
+      return context;
+    },
+  },
   clear: {
     description: "Clear the terminal",
     usage: "clear",
@@ -159,9 +163,13 @@ const commands: Commands = {
   ls: {
     description: "List files and directories",
     usage: "ls",
-    args: "",
-    fn: (context: Context, terminal: XTerm) => {
-      terminal.writeln(context.location.keys().join(" "));
+    args: "<optional path>",
+    fn: (context: Context, terminal: XTerm, args?: string[]) => {
+      let location = context.location.inner;
+      if (args?.[0] !== undefined) {
+        location = context.location.navigate(args[0]);
+      }
+      terminal.writeln(Object.keys(location).sort().join(" "));
       return context;
     },
   },
