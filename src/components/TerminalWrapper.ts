@@ -1,20 +1,21 @@
 import React from "react";
 import { Terminal as XTerm } from "xterm";
-import execute, { root } from "./command";
+import execute, { Content, home } from "./command";
 import { me as img, about } from "./about";
 
 const ignoreKeys = ["ArrowUp", "ArrowDown", "Tab"];
 export class TerminalWrapper {
   terminal: React.RefObject<XTerm | undefined>;
-  location: string = root;
+  location: Content;
   input: string = "";
   col: number = 3;
   constructor(terminal: React.RefObject<XTerm | undefined>) {
+    this.location = home;
     this.terminal = terminal;
   }
 
   prefix() {
-    return this.location + " $ ";
+    return this.location.toPath() + " $ ";
   }
   writePrefix() {
     this.input = this.prefix();
@@ -89,6 +90,7 @@ export class TerminalWrapper {
       command
     );
     this.location = context.location;
+    console.log(context.location.toPath());
 
     this.writePrefix();
   }

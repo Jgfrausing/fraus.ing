@@ -1,8 +1,8 @@
 import { Terminal as XTerm } from "xterm";
 
-export const root = "/home/jonatan";
-type Context = {
-  location: string;
+const root = "/home/jonatan";
+export type Context = {
+  location: Content;
   openFile?: string;
 };
 
@@ -17,49 +17,100 @@ type Commands = {
   [key: string]: Command;
 };
 
-type Content = {
-  [key: string]: string | Content | undefined;
-};
+type Inner = { [key: string]: string | Inner | undefined };
+export class Content {
+  private root: Inner;
+  private inner: Inner;
 
-const toPath = (content: Content): string => {
-  let path = "";
-  while (content?.["."] != null) {
-    path = content["."] + "/" + path;
-    content = content[".."] as Content;
+  constructor(content: Inner) {
+    let contentClone = JSON.parse(JSON.stringify(content));
+    this.root = this.addParent(contentClone);
+    this.inner = this.addParent(content);
+    console.log(this.root);
+  }
+  setInner(newlocation: Inner) {
+    this.inner = newlocation;
+  }
+  private addParent(folder: Inner) {
+    const recursive = (folder: Inner, name: string, parent?: Inner) => {
+      Object.entries(folder).forEach(([key, value]) => {
+        if (value !== undefined && typeof value !== "string") {
+          value = recursive(value, key, folder);
+        }
+      });
+      folder["."] = name;
+      folder[".."] = parent;
+
+      return folder;
+    };
+    return recursive(folder, root);
   }
 
-  return path.substring(0, path.length - 1);
-};
+  toPath(): string {
+    let path = "";
 
-const content: Content = (() => {
-  let structure: Content = {
-    "about.md": "/about.md",
-    posts: {
-      "first-post.md": "/posts/first-post.md",
-      "second-post.md": "/posts/second-post.md",
-    },
-  };
+    console.log(this.inner);
+    let inner: Inner | undefined | string = this.inner;
+    while (typeof inner !== "string" && inner?.[".."] != undefined) {
+      path = inner["."] + "/" + path;
+      inner = inner[".."];
+    }
 
-  const addParent = (
-    content: Content,
-    self: string,
-    parent: Content | undefined
-  ) => {
-    for (const [key, value] of Object.entries(content)) {
-      if (value === undefined || typeof value === "string") {
-      } else {
-        addParent(value, key, content);
+    // remove trailing slash
+    return (root + "/" + path).substring(0, path.length - 1);
+  }
+
+  navigate(path: string): Inner {
+    if (path === ".") {
+      return this.inner;
+    } else if (path === "..") {
+      if (
+        this.inner[".."] === undefined ||
+        typeof this.inner[".."] === "string"
+      ) {
+        throw new Error("Access denied!");
       }
     }
-    content["."] = self;
-    content[".."] = parent;
+    let newLocation = this.inner[path];
+    if (newLocation === undefined) {
+      throw new Error("Directory not found");
+    } else if (typeof newLocation === "string") {
+      throw new Error("Not a directory");
+    } else {
+      return newLocation;
+    }
+  }
 
-    return content;
-  };
+  getFilePath(arg: string): string {
+    let parts = arg.split("/");
+    let file = parts[parts.length - 1];
+    parts = parts.slice(0, parts.length - 1);
+    console.log(parts);
+    let inner = this.inner;
+    if (parts.length !== 0) {
+      inner = this.navigate(parts.join("/"));
+    }
+    if (inner[file] === undefined) {
+      throw new Error("File not found");
+    } else if (typeof inner[file] !== "string") {
+      throw new Error("Not a file");
+    } else {
+      return inner[file];
+    }
+  }
 
-  structure = addParent(structure, root, undefined);
-  return structure;
-})();
+  keys(): string[] {
+    return Object.keys(this.inner).sort();
+  }
+}
+
+export const home: Content = new Content({
+  "about.md": "/about.md",
+  posts: {
+    "first-post.md": "/posts/first-post.md",
+    "second-post.md": "/posts/second-post.md",
+  },
+});
 
 const commands: Commands = {
   help: {
@@ -109,8 +160,7 @@ const commands: Commands = {
     usage: "ls",
     args: "",
     fn: (context: Context, terminal: XTerm) => {
-      let location = navigateTo(context.location);
-      terminal.writeln(Object.keys(location).sort().join(" "));
+      terminal.writeln(context.location.keys().join(" "));
       return context;
     },
   },
@@ -121,46 +171,28 @@ const commands: Commands = {
     args: "<directory>",
     fn: (context: Context, terminal: XTerm, args?: string[]) => {
       if (args === undefined || args.length === 0 || args[0].trim() === "") {
-        context.location = toPath(content);
+        context.location = home;
         return context;
       } else if (args.length > 1) {
         terminal.writeln("cd: too many arguments");
       } else {
-        const navigate = (location: Content, path: string) => {
-          if (path === ".") {
-            return location;
-          } else if (path === "..") {
-            if (
-              location[".."] === undefined ||
-              typeof location[".."] === "string"
-            ) {
-              throw new Error("Access denied!");
-            }
-          }
-          let newLocation = location[path];
-          if (newLocation === undefined) {
-            throw new Error("Directory not found");
-          } else return newLocation;
-        };
-
-        let location = navigateTo(context.location);
+        let location = context.location;
         let parts = args[0].split("/");
-        console.log(parts);
         if (parts[0] === "~") {
-          location = content;
+          location = home;
           parts = parts.slice(1);
         }
         for (let i = 0; i < parts.length; i++) {
-          let newlocation = navigate(location, parts[i]);
+          let newlocation = location.navigate(parts[i]);
           if (newlocation === undefined) {
             throw new Error("Directory not found");
           } else if (typeof newlocation === "string") {
             throw new Error("Not a directory");
           } else {
-            location = newlocation;
+            location.setInner(newlocation);
           }
         }
-        context.location = toPath(location);
+        context.location = location;
       }
       return context;
     },
@@ -170,9 +202,9 @@ const commands: Commands = {
     usage: "tree",
     args: "",
     fn: (context: Context, terminal: XTerm) => {
-      terminal.writeln(context.location);
+      terminal.writeln(context.location.toPath());
 
-      let location = navigateTo(context.location);
+      let location = context.location;
       const printTree = (content: Content, depth: number) => {
         for (const [key, value] of Object.entries(content)) {
           const prefix = " ".repeat(depth);
@@ -207,18 +239,9 @@ const commands: Commands = {
         return context;
       }
 
-      let location = navigateTo(context.location);
-      let file = location[args[0]];
-      if (file === undefined) {
-        terminal.writeln("open: file not found");
-        return context;
-      } else if (typeof file === "string") {
-        terminal.writeln(file);
-        return context;
-      } else {
-        terminal.writeln("open: not a file");
-        return context;
-      }
+      context.openFile = context.location.getFilePath(args[0]);
+      terminal.writeln(`Opening ${context.openFile}`);
+      return context;
     },
   },
 };
@@ -238,28 +261,6 @@ const execute = (context: Context, terminal: XTerm, input: string) => {
     terminal.writeln(error);
     return context;
   }
-};
-const navigateTo = (path: string) => {
-  console.log(path);
-  let location: Content = content;
-  if (path[path.length - 1] === "/") {
-    path = path.slice(0, path.length - 1);
-  }
-
-  const parts = path.slice(root.length).split("/");
-  for (let i = 1; i < parts.length; i++) {
-    let part = parts[i];
-    const newLocation = location[part];
-
-    if (newLocation === undefined || newLocation === null) {
-      throw new Error("Directory not found");
-    } else if (typeof newLocation === "string") {
-      throw new Error("Not a directory");
-    } else {
-      location = newLocation;
-    }
-  }
-  return location;
 };
 
 export default execute;
