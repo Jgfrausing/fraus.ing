@@ -61,6 +61,7 @@ export class Content {
   }
 
   navigate(path: string): Inner {
+    console.log(path);
     if (path === "~") {
       return this.root;
     } else if (path === ".") {
@@ -193,10 +194,7 @@ const commands: Commands = {
       } else {
         let location = context.location;
         let parts = args[0].split("/");
-        if (parts[0] === "~") {
-          location = home;
-          parts = parts.slice(1);
-        }
+
         for (let i = 0; i < parts.length; i++) {
           let newlocation = location.navigate(parts[i]);
           if (newlocation === undefined) {
@@ -259,6 +257,33 @@ const commands: Commands = {
       return context;
     },
   },
+};
+
+export const autoComplete = (context: Context, input: string) => {
+  const [command, ...args] = input.trim().split(" ");
+
+  const parts = args?.[0].trim()?.split("/");
+  console.log(args, parts);
+  if (parts === undefined) {
+    return [];
+  }
+  if (parts.length === 0) {
+    return [];
+  }
+  let lastPart = parts[parts.length - 1];
+  let path = parts.slice(0, parts.length - 1).join("/");
+  let location = context.location.inner;
+  if (path !== "") {
+    location = context.location.navigate(path);
+    path = path + "/";
+  }
+
+  let res = Object.keys(location)
+    .filter((key) => {
+      return key.startsWith(lastPart);
+    })
+    .map((key) => `${command} ${path}${key}`);
+  return [input, ...res];
 };
 
 const execute = (context: Context, terminal: XTerm, input: string) => {

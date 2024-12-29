@@ -1,22 +1,46 @@
 import React from "react";
 import { Terminal as XTerm } from "xterm";
-import execute, { Content, home } from "./command";
-import { me as img, about } from "./about";
+import execute, { autoComplete, Content, home } from "./command";
+import { img, about } from "./about";
 
-const ignoreKeys = ["ArrowUp", "ArrowDown", "Tab"];
+class RingBuffer<T> {
+  buffer: T[];
+  index: number;
+  constructor(items: T[] = []) {
+    this.buffer = items;
+    this.index = 0;
+  }
+  clear() {
+    this.buffer = [];
+    this.index = 0;
+  }
+  empty() {
+    return this.buffer.length === 0;
+  }
+
+  next() {
+    if (this.empty()) return undefined;
+    this.index = (this.index + 1) % this.buffer.length;
+    return this.buffer[this.index];
+  }
+}
+const ignoreKeys = ["ArrowUp", "ArrowDown"];
 export class TerminalWrapper {
   terminal: React.RefObject<XTerm | undefined>;
   location: Content;
+  suggestions: RingBuffer<string>;
   input: string = "";
-  col: number = 3;
+  col: number = 0;
   constructor(terminal: React.RefObject<XTerm | undefined>) {
     this.location = home;
     this.terminal = terminal;
+    this.suggestions = new RingBuffer<string>();
   }
 
   prefix() {
-    return this.location.toPath() + " $ ";
+    return this.location.toPath() + "$ ";
   }
+
   writePrefix() {
     this.input = this.prefix();
     this.col = this.input.length;
@@ -53,9 +77,13 @@ export class TerminalWrapper {
       this.right();
     } else if (domEvent.key === "Backspace") {
       this.backspace();
+    } else if (domEvent.key === "Tab") {
+      this.autoComplete();
+      return;
     } else {
       this.key(key);
     }
+    this.suggestions.clear();
   }
 
   key(text: string) {
@@ -79,6 +107,21 @@ export class TerminalWrapper {
     if (this.col === this.prefix().length) return;
     this.col = this.col - 1;
     this.input = this.input.slice(0, this.col);
+    this.writeLn();
+  }
+  autoComplete() {
+    if (this.suggestions.empty()) {
+      let command = this.input.slice(this.prefix().length);
+      this.suggestions = new RingBuffer<string>(
+        autoComplete({ location: this.location }, command)
+      );
+    }
+    let next = this.suggestions.next();
+    if (next === undefined) {
+      return;
+    }
+    this.input = this.prefix() + next;
+    this.col = this.input.length;
     this.writeLn();
   }
   enter() {
