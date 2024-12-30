@@ -228,7 +228,7 @@ const commands: Commands = {
       terminal.writeln(context.location.toPath());
 
       let location = context.location;
-      const printTree = (content: Content, depth: number) => {
+      const printTree = (content: Inner, depth: number) => {
         for (const [key, value] of Object.entries(content)) {
           const prefix = " ".repeat(depth);
 
@@ -245,7 +245,7 @@ const commands: Commands = {
         }
       };
 
-      printTree(location, 1);
+      printTree(location.inner, 1);
       return context;
     },
   },
