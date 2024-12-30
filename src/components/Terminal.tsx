@@ -1,7 +1,7 @@
-import React, { use, useEffect, useRef } from "react";
-import { Terminal as XTerm } from "xterm";
-import { FitAddon } from "xterm-addon-fit";
-import "xterm/css/xterm.css";
+import React, { use, useEffect, useRef, useState } from "react";
+import { Terminal as XTerm } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import "@xterm/xterm/css/xterm.css";
 import { TerminalWrapper } from "./TerminalWrapper";
 
 const Terminal: React.FC = () => {
@@ -30,14 +30,18 @@ const Terminal: React.FC = () => {
       // Fit the terminal to the container
       fitAddon.current.fit();
 
+      const handleResize = () => {
+        let proposedDimensions = fitAddon.current.proposeDimensions();
+        terminal.current?.resize(
+          proposedDimensions!.cols + 1,
+          proposedDimensions!.rows
+        );
+      };
+      handleResize();
+
       wrapper.start();
 
-      // Adjust terminal size on window resize
-      const handleResize = () => fitAddon.current.fit();
-      window.addEventListener("resize", handleResize);
-
       return () => {
-        window.removeEventListener("resize", handleResize);
         terminal.current?.dispose();
       };
     }

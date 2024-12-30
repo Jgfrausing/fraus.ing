@@ -114,6 +114,18 @@ export const home: Content = new Content({
 });
 
 const commands: Commands = {
+  exit: {
+    description: "Close the terminal",
+    usage: "exit",
+    args: "",
+    fn: (context: Context, terminal: XTerm) => {
+      terminal.writeln("Closing terminal!");
+      setTimeout(() => {
+        terminal.dispose();
+      }, 1000);
+      return context;
+    },
+  },
   help: {
     description: "List all available commands",
     usage: "help",
@@ -188,7 +200,7 @@ const commands: Commands = {
         context.location = home;
         return context;
       } else if (args.length > 1) {
-        terminal.writeln("cd: too many arguments");
+        throw new Error("cd: too many arguments");
       } else {
         let location = context.location;
         let parts = args[0].split("/");
@@ -243,11 +255,9 @@ const commands: Commands = {
     args: "<file>",
     fn: (context: Context, terminal: XTerm, args?: string[]) => {
       if (args === undefined || args.length === 0) {
-        terminal.writeln("open: missing file operand");
-        return context;
+        throw new Error("open: missing file operand");
       } else if (args.length > 1) {
-        terminal.writeln("open: too many arguments");
-        return context;
+        throw new Error("open: too many arguments");
       }
 
       context.openFile = context.location.getFilePath(args[0]);
@@ -284,7 +294,11 @@ export const autoComplete = (context: Context, input: string) => {
 };
 
 const execute = (context: Context, terminal: XTerm, input: string) => {
-  const [command, ...args] = input.trim().split(" ");
+  let trimmed = input.trim();
+  if (trimmed === "") {
+    return context;
+  }
+  const [command, ...args] = trimmed.split(" ");
 
   try {
     if (commands[command]) {

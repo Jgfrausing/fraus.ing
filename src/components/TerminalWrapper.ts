@@ -49,13 +49,28 @@ export class TerminalWrapper {
 
   start() {
     let imgLines = img.split("\n");
-    let aboutLines = about.split("\n").map((line) => line.padEnd(38, " "));
+    let aboutLines = about.split("\n");
     const diff = imgLines.length - aboutLines.length;
     imgLines = imgLines.slice(diff);
 
     this.terminal.current?.writeln("");
-    for (let i = 0; i < imgLines.length; i++) {
-      let line = aboutLines[i] + imgLines[i];
+
+    let displaySize = window.innerWidth < 730 ? "s" : "l";
+    if (displaySize === "l") {
+      aboutLines = aboutLines.map((line) => line.padEnd(38, " "));
+      for (let i = 0; i < imgLines.length; i++) {
+        let line = aboutLines[i] + imgLines[i];
+        this.terminal.current?.writeln(line);
+      }
+    } else {
+      for (let i = 0; i < imgLines.length; i++) {
+        let line = imgLines[i];
+        this.terminal.current?.writeln(line.substring(2, 38));
+      }
+      let line = aboutLines
+        .map((line) => line.trim())
+        .join(" ")
+        .trim();
       this.terminal.current?.writeln(line);
     }
     this.terminal.current?.writeln("Welcome to My Portfolio Terminal!");

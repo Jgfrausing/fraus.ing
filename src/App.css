@@ -25,16 +25,16 @@
 }
 
 .xterm-viewport::-webkit-scrollbar-track {
-  background: #1e1e1e; /* Background color of the scrollbar track */
+  opacity: 0;
 }
 
 .xterm-viewport::-webkit-scrollbar-thumb {
-  background-color: #555; /* Color of the scrollbar handle */
-  border-radius: 4px; /* Rounded corners */
+  opacity: 0;
 }
 
 .xterm-viewport::-webkit-scrollbar-thumb:hover {
   background-color: #888; /* Color when hovering over the scrollbar handle */
+  border-radius: 4px; /* Rounded corners */
 }
 
 #root {
