@@ -249,6 +249,27 @@ const commands: Commands = {
       return context;
     },
   },
+  cat: {
+    description: "Display a file in the terminal",
+    usage: "cat <file>",
+    args: "<file>",
+    fn: (context: Context, terminal: XTerm, args?: string[]) => {
+      if (args === undefined || args.length === 0) {
+        throw new Error("cat: missing file operand");
+      } else if (args.length > 1) {
+        throw new Error("cat: too many arguments");
+      }
+
+      let file = context.location.getFilePath(args[0]);
+      fetch(file).then((response) =>
+        response.text().then((text) => {
+          terminal.writeln("");
+          terminal.writeln(text);
+        })
+      );
+      return context;
+    },
+  },
   open: {
     description: "Open a file",
     usage: "open <file>",

@@ -1,14 +1,24 @@
-import React, { use, useEffect, useRef, useState } from "react";
+import React, {
+  use,
+  useEffect,
+  useRef,
+  useState,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import { Terminal as XTerm } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { TerminalWrapper } from "./TerminalWrapper";
 
-const Terminal: React.FC = () => {
+type Props = {
+  setPath: Dispatch<SetStateAction<string | undefined>>;
+};
+const Terminal: React.FC<Props> = ({ setPath }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const terminal = useRef<XTerm | undefined>(undefined);
   const fitAddon = useRef<FitAddon>(new FitAddon());
-  let wrapper = new TerminalWrapper(terminal);
+  let wrapper = new TerminalWrapper(terminal, setPath);
 
   useEffect(() => {
     if (terminalRef.current) {

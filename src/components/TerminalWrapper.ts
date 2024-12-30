@@ -26,14 +26,19 @@ class RingBuffer<T> {
 }
 const ignoreKeys = ["ArrowUp", "ArrowDown"];
 export class TerminalWrapper {
+  setPath: React.Dispatch<React.SetStateAction<string | undefined>>;
   terminal: React.RefObject<XTerm | undefined>;
   location: Content;
   suggestions: RingBuffer<string>;
   input: string = "";
   col: number = 0;
-  constructor(terminal: React.RefObject<XTerm | undefined>) {
+  constructor(
+    terminal: React.RefObject<XTerm | undefined>,
+    setPath: React.Dispatch<React.SetStateAction<string | undefined>>
+  ) {
     this.location = home;
     this.terminal = terminal;
+    this.setPath = setPath;
     this.suggestions = new RingBuffer<string>();
   }
 
@@ -148,11 +153,8 @@ export class TerminalWrapper {
       command
     );
     this.location = context.location;
-    if (context.openFile !== undefined) {
-      let file = fetch(context.openFile).then((response) =>
-        response.text().then((text) => console.log(text))
-      );
-    }
+
+    this.setPath(context.openFile);
 
     this.writePrefix();
   }
