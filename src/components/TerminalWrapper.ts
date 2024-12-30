@@ -1,5 +1,5 @@
 import React from "react";
-import { Terminal as XTerm } from "xterm";
+import { Terminal as XTerm } from "@xterm/xterm";
 import execute, { autoComplete, Content, home } from "./command";
 import { img, about } from "./about";
 

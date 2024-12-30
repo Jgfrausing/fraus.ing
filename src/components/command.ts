@@ -1,4 +1,4 @@
-import { Terminal as XTerm } from "xterm";
+import { Terminal as XTerm } from "@xterm/xterm";
 
 const root = "/home/jonatan";
 export type Context = {
