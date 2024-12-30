@@ -148,6 +148,11 @@ export class TerminalWrapper {
       command
     );
     this.location = context.location;
+    if (context.openFile !== undefined) {
+      let file = fetch(context.openFile).then((response) =>
+        response.text().then((text) => console.log(text))
+      );
+    }
 
     this.writePrefix();
   }

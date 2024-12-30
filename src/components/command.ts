@@ -106,7 +106,7 @@ export class Content {
 }
 
 export const home: Content = new Content({
-  "about.md": "/about.md",
+  "about.md": "files/about.md",
   posts: {
     "first-post.md": "/posts/first-post.md",
     "second-post.md": "/posts/second-post.md",
