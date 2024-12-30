@@ -108,8 +108,8 @@ export class Content {
 export const home: Content = new Content({
   "about.md": "files/about.md",
   posts: {
-    "first-post.md": "/posts/first-post.md",
-    "second-post.md": "/posts/second-post.md",
+    "given-when-then.md": "files/given-when-then/index.md",
+    "mouseless.md": "files/mouseless/index.md",
   },
 });
 
